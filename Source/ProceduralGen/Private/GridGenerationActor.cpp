@@ -31,29 +31,64 @@ void AGridGenerationActor::Tick(float DeltaTime)
 
 }
 
+ #pragma region TestGeneration
+
 /// <summary>
 /// Based on this actor location, generate the grid.
 /// </summary>
-void AGridGenerationActor::GenerateGrid() 
+void AGridGenerationActor::ExampleGenerateGrid() 
 {
-	FVector gridLocation = GetActorLocation();
-	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("Current location of grid: %s"), *GetActorLocation().ToString()));
-
-	CentreGrid(gridLocation);
+	FVector gridStartPos = GetActorLocation();
+	GetGridStartPos(gridStartPos);
 
 	for (int y = 0; y / TILE_SIZE < height; y += TILE_SIZE) 
 	{
 		for (int x = 0; x / TILE_SIZE < width; x += TILE_SIZE) 
 		{
 			FVector currentLocation;
-			currentLocation.Set(x + gridLocation.X, y + gridLocation.Y, 0);
+			currentLocation.Set(x + gridStartPos.X, y + gridStartPos.Y, 0);
 
 			AMyTestActor* test = GetWorld()->SpawnActor<AMyTestActor>(testClass, currentLocation, GetActorRotation());
 			test->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 			test->SetRootComponent(Transform);
-			gridModules.AddUnique(test);
 		}
 	}
+}
+
+#pragma endregion
+
+ #pragma region Wave Function Collapse
+
+void AGridGenerationActor::WaveFunctionCollapseGen() 
+{
+	
+}
+
+void AGridGenerationActor::GenerateGrid() 
+{
+	FVector gridStartPos;
+	GetGridStartPos(gridStartPos);
+
+	for (int y = 0; y / TILE_SIZE < height; y += TILE_SIZE)
+	{
+		for (int x = 0; x / TILE_SIZE < width; x += TILE_SIZE)
+		{
+			FVector currentLocation;
+			currentLocation.Set(x + gridStartPos.X, y + gridStartPos.Y, 0);
+
+			gridSlots.Add(currentLocation);
+		}
+	}
+}
+
+/// <summary>
+/// Turns the given vector to be at the starting position of the grid based on actor position
+/// </summary>
+/// <param name="vector"></param>
+void AGridGenerationActor::GetGridStartPos(FVector &vector) 
+{
+	vector = GetActorLocation();
+	CentreGrid(vector);
 }
 
 /// <summary>
@@ -65,3 +100,6 @@ void AGridGenerationActor::CentreGrid(FVector &vectorToAlign)
 	vectorToAlign.X -= ((width * TILE_SIZE) / 2) - TILE_SIZE / 2;
 	vectorToAlign.Y -= ((height * TILE_SIZE) / 2) - TILE_SIZE / 2;
 }
+
+#pragma endregion
+

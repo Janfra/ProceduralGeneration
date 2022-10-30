@@ -3,31 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyModuleRules.h"
 #include "Components/ActorComponent.h"
-#include "MyModuleRules.generated.h"
+#include "GenSlot.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROCEDURALGEN_API UMyModuleRules : public UActorComponent
+class PROCEDURALGEN_API UGenSlot : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UMyModuleRules();
+	UGenSlot();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	enum Options
-	{
-		Blank,
-		Up,
-		Right,
-		Down,
-		Left,
-
-	};
+	UPROPERTY(VisibleAnywhere)
+		bool Collapse;
+	TArray<UMyModuleRules::Options> OptionsAvailable;
 };

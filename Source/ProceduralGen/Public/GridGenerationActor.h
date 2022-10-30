@@ -35,12 +35,19 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Generation", DisplayName = "Grid")
-		TArray<AMyTestActor*> gridModules;
+		TArray<FVector> gridSlots;
 
 	UPROPERTY(EditAnywhere, Category = "Generation", DisplayName = "Test to Generate")
 		TSubclassOf<AMyTestActor> testClass = AMyTestActor::StaticClass();
+	
+	void ExampleGenerateGrid();
 
 	void GenerateGrid();
 
+	void WaveFunctionCollapseGen();
+
+	void GetGridStartPos(FVector &vector);
+
 	void CentreGrid(FVector &vectorToAlign);
+
 };
