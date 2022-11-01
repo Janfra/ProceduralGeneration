@@ -21,7 +21,7 @@ void AGridGenerationActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GenerateGrid();
+	WaveFunctionCollapseGen();
 }
 
 // Called every frame
@@ -36,9 +36,9 @@ void AGridGenerationActor::Tick(float DeltaTime)
 /// <summary>
 /// Based on this actor location, generate the grid.
 /// </summary>
-void AGridGenerationActor::ExampleGenerateGrid() 
+void AGridGenerationActor::GenerateGrid() 
 {
-	FVector gridStartPos = GetActorLocation();
+	FVector gridStartPos;
 	GetGridStartPos(gridStartPos);
 
 	for (int y = 0; y / TILE_SIZE < height; y += TILE_SIZE) 
@@ -51,6 +51,8 @@ void AGridGenerationActor::ExampleGenerateGrid()
 			AMyTestActor* test = GetWorld()->SpawnActor<AMyTestActor>(testClass, currentLocation, GetActorRotation());
 			test->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 			test->SetRootComponent(Transform);
+			test->ChangeColour(FLinearColor::Red);
+			gridSlots.AddUnique(test);
 		}
 	}
 }
@@ -61,24 +63,9 @@ void AGridGenerationActor::ExampleGenerateGrid()
 
 void AGridGenerationActor::WaveFunctionCollapseGen() 
 {
-	
-}
+	GenerateGrid();
 
-void AGridGenerationActor::GenerateGrid() 
-{
-	FVector gridStartPos;
-	GetGridStartPos(gridStartPos);
 
-	for (int y = 0; y / TILE_SIZE < height; y += TILE_SIZE)
-	{
-		for (int x = 0; x / TILE_SIZE < width; x += TILE_SIZE)
-		{
-			FVector currentLocation;
-			currentLocation.Set(x + gridStartPos.X, y + gridStartPos.Y, 0);
-
-			gridSlots.Add(currentLocation);
-		}
-	}
 }
 
 /// <summary>

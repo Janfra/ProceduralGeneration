@@ -17,6 +17,12 @@ AMyTestActor::AMyTestActor()
 	Mesh->SetStaticMesh(newStaticMesh);
 
 	Rules = CreateDefaultSubobject<UMyModuleRules>(TEXT("Rules"), false);
+
+	//for (int i = 0; i < TOTAL_TYPES; i++) 
+	//{
+	//	TileType type = static_cast<TileType>(i);
+	//	tileTypesPossible.AddUnique(type);
+	//}
 }
 
 // Called when the game starts or when spawned
@@ -26,3 +32,15 @@ void AMyTestActor::BeginPlay()
 	
 }
 
+void AMyTestActor::ChangeColour(FLinearColor newColour) 
+{
+	UMaterialInstanceDynamic* material = Mesh->CreateAndSetMaterialInstanceDynamic(0);
+	if (material) {
+		material->SetVectorParameterValue(TEXT("Color"), newColour);
+	}
+}
+
+void AMyTestActor::GetColour(Directions direction) 
+{
+
+}
