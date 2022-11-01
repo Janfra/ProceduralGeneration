@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ // Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "MyTestActor.h"
@@ -18,11 +18,19 @@ AMyTestActor::AMyTestActor()
 
 	Rules = CreateDefaultSubobject<UMyModuleRules>(TEXT("Rules"), false);
 
-	//for (int i = 0; i < TOTAL_TYPES; i++) 
-	//{
-	//	TileType type = static_cast<TileType>(i);
-	//	tileTypesPossible.AddUnique(type);
-	//}
+	TArray<TileTypes> AllTypes;
+	for (int i = 0; i < (int)TileTypes::TYPES_COUNT; i++) {
+		AllTypes.AddUnique((TileTypes)i);
+	}
+
+	int8 directionIndex = 0;
+	for (FTileTypeNeighbours& currentDirection : PossibleNeighbours) {
+		currentDirection.TilesPossible.Append(AllTypes);
+		currentDirection.Direction = (Directions)directionIndex;
+		directionIndex++;
+	}
+
+	bCollapsed = false;
 }
 
 // Called when the game starts or when spawned
@@ -32,7 +40,7 @@ void AMyTestActor::BeginPlay()
 	
 }
 
-void AMyTestActor::ChangeColour(FLinearColor newColour) 
+void AMyTestActor::ChangeColour(const FLinearColor& newColour) 
 {
 	UMaterialInstanceDynamic* material = Mesh->CreateAndSetMaterialInstanceDynamic(0);
 	if (material) {
@@ -40,7 +48,47 @@ void AMyTestActor::ChangeColour(FLinearColor newColour)
 	}
 }
 
-void AMyTestActor::GetColour(Directions direction) 
+FLinearColor AMyTestActor::GetColour(const TileTypes& type) 
 {
+	switch (type) 
+	{
+	case TileTypes::Blue:
+		return FLinearColor::Blue;
+	case TileTypes::Green:
+		return FLinearColor::Green;
+	case TileTypes::White:
+		return FLinearColor::White;
+	}
 
+	return FLinearColor::Gray;
+}
+
+void AMyTestActor::SetType(const TileTypes& type) 
+{
+	ChangeColour(GetColour(type));
+	bCollapsed = true;
+}
+
+bool AMyTestActor::GetCollapsed() 
+{
+	return bCollapsed;
+}
+
+void AMyTestActor::SetTypes(TArray<TileTypes>& typeToBe) 
+{
+	TArray<TileTypes> newTypesAvailable;
+	for (TileTypes& currentTileConstraint : typeToBe) 
+	{
+		if (possibleTypes.Contains(currentTileConstraint)) 
+		{
+			newTypesAvailable.AddUnique(currentTileConstraint);
+		}
+	}
+	possibleTypes.Empty();
+	possibleTypes.Append(newTypesAvailable);
+}
+
+int8 AMyTestActor::GetTypeCount() 
+{
+	return possibleTypes.Num();
 }
