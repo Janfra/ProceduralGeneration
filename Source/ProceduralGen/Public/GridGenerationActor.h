@@ -25,6 +25,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Transform")
 		USceneComponent* Transform;
 
+	UPROPERTY(EditAnywhere, Category = "Generation")
+		UMyModuleRules* Rules;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,12 +43,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Generation", DisplayName = "Test to Generate")
 		TSubclassOf<AMyTestActor> testClass = AMyTestActor::StaticClass();
 	
+	UPROPERTY(VisibleAnywhere, Category = "Generation", DisplayName = "Ignored Slots")
+		TArray<AMyTestActor*> slotsUpdated;
+
 	void GenerateGrid();
 
 	void WaveFunctionCollapseGen();
 
-	void GetGridStartPos(FVector &vector);
+	void GetGridStartPos(FVector& vector);
 
-	void CentreGrid(FVector &vectorToAlign);
+	void CentreGrid(FVector& vectorToAlign);
+
+	void Propagate(TileTypes& type, int &originIndex);
+
+	void UpdateSlot(const int& index, TileTypes& type, Directions direction);
+
+	int ClampIndex(const int& index);
 
 };

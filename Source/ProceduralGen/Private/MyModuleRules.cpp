@@ -10,7 +10,12 @@ UMyModuleRules::UMyModuleRules()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+	//int8 directionIndex = 0;
+	//for (FTileTypeNeighbours& currentDirection : PossibleNeighbours) {
+	//	currentDirection.TilesPossible.Append(AllTypes);
+	//	currentDirection.Direction = (Directions)directionIndex;
+	//	directionIndex++;
+	//}
 }
 
 
@@ -23,4 +28,17 @@ void UMyModuleRules::BeginPlay()
 	
 }
 
+TArray<TileTypes> UMyModuleRules::GetConstraints(TileTypes& type, Directions& direction) 
+{
+	for (auto& directionConstraint : typeNeighboursDictionary[type].DirectionConstraints) 
+	{
+		if (directionConstraint.GetDirection() == direction) 
+		{
+			return directionConstraint.TilesPossible;
+		}
+	}
 
+	// Should never get here
+	TArray<TileTypes> empty;
+	return empty;
+}

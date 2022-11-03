@@ -16,19 +16,12 @@ AMyTestActor::AMyTestActor()
 	UStaticMesh* newStaticMesh = MeshAsset.Object;
 	Mesh->SetStaticMesh(newStaticMesh);
 
-	Rules = CreateDefaultSubobject<UMyModuleRules>(TEXT("Rules"), false);
-
 	TArray<TileTypes> AllTypes;
 	for (int i = 0; i < (int)TileTypes::TYPES_COUNT; i++) {
 		AllTypes.AddUnique((TileTypes)i);
 	}
 
-	int8 directionIndex = 0;
-	for (FTileTypeNeighbours& currentDirection : PossibleNeighbours) {
-		currentDirection.TilesPossible.Append(AllTypes);
-		currentDirection.Direction = (Directions)directionIndex;
-		directionIndex++;
-	}
+	possibleTypes.Append(AllTypes);
 
 	bCollapsed = false;
 }
@@ -74,10 +67,10 @@ bool AMyTestActor::GetCollapsed()
 	return bCollapsed;
 }
 
-void AMyTestActor::SetTypes(TArray<TileTypes>& typeToBe) 
+void AMyTestActor::SetTypes(TArray<TileTypes> typeToBe) 
 {
 	TArray<TileTypes> newTypesAvailable;
-	for (TileTypes& currentTileConstraint : typeToBe) 
+	for (auto& currentTileConstraint : typeToBe) 
 	{
 		if (possibleTypes.Contains(currentTileConstraint)) 
 		{
@@ -91,4 +84,15 @@ void AMyTestActor::SetTypes(TArray<TileTypes>& typeToBe)
 int8 AMyTestActor::GetTypeCount() 
 {
 	return possibleTypes.Num();
+}
+
+TileTypes AMyTestActor::GetType() 
+{
+	if (possibleTypes.Num() > 1) {
+		return possibleTypes[FMath::RandRange(0, possibleTypes.Num() - 1)];
+	} 
+	else 
+	{
+		return possibleTypes[0];
+	}
 }
