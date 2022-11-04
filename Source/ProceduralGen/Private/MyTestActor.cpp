@@ -51,9 +51,13 @@ FLinearColor AMyTestActor::GetColour(const TileTypes& type)
 		return FLinearColor::Green;
 	case TileTypes::White:
 		return FLinearColor::White;
+	case TileTypes::Red:
+		return FLinearColor::Red;
+	case TileTypes::Gray:
+		return FLinearColor::Gray;
 	}
 
-	return FLinearColor::Gray;
+	return FLinearColor::Black;
 }
 
 void AMyTestActor::SetType(const TileTypes& type) 
@@ -67,9 +71,10 @@ bool AMyTestActor::GetCollapsed()
 	return bCollapsed;
 }
 
-void AMyTestActor::SetTypes(TArray<TileTypes> typeToBe) 
+bool AMyTestActor::SetTypes(TArray<TileTypes> typeToBe) 
 {
 	TArray<TileTypes> newTypesAvailable;
+
 	for (auto& currentTileConstraint : typeToBe) 
 	{
 		if (possibleTypes.Contains(currentTileConstraint)) 
@@ -77,8 +82,21 @@ void AMyTestActor::SetTypes(TArray<TileTypes> typeToBe)
 			newTypesAvailable.AddUnique(currentTileConstraint);
 		}
 	}
+	if (newTypesAvailable.Num() == possibleTypes.Num()) 
+	{
+		return false;
+	}
+	
 	possibleTypes.Empty();
-	possibleTypes.Append(newTypesAvailable);
+	if (newTypesAvailable.IsEmpty()) 
+	{
+		possibleTypes.Add(TileTypes::White);
+	}
+	else 
+	{
+		possibleTypes.Append(newTypesAvailable);
+	}
+	return true;
 }
 
 int8 AMyTestActor::GetTypeCount() 
@@ -95,4 +113,9 @@ TileTypes AMyTestActor::GetType()
 	{
 		return possibleTypes[0];
 	}
+}
+
+TArray<TileTypes> AMyTestActor::GetPossibleTypes() 
+{
+	return possibleTypes;
 }

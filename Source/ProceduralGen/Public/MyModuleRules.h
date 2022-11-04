@@ -15,6 +15,8 @@ enum class TileTypes : uint8
 	White,
 	Green,
 	Blue,
+	Red,
+	Gray,
 
 	// This is used as my way of always knowing the total size of this enum. Keep at the end
 	TYPES_COUNT UMETA(Hidden)
@@ -94,4 +96,6 @@ private:
 
 public:	
 	TArray<TileTypes> GetConstraints(TileTypes& type, Directions& direction);
+
+	TArray<TileTypes> GetGroupConstraints(TArray<TileTypes> typeArr, Directions& direction);
 };

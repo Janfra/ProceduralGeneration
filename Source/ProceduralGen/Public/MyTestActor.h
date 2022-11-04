@@ -3,7 +3,6 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "ModulePrototypes.h"
-#include "TileTypesEnum.h"
 #include "MyModuleRules.h"
 #include "GameFramework/Actor.h"
 #include "MyTestActor.generated.h"
@@ -35,13 +34,16 @@ public:
 	bool GetCollapsed();
 
 	UFUNCTION()
-	void SetTypes(TArray<TileTypes> typeToBe);
+	bool SetTypes(TArray<TileTypes> typeToBe);
 
 	UFUNCTION()
 	int8 GetTypeCount();
 
 	UFUNCTION()
 	TileTypes GetType();
+
+	UFUNCTION()
+	TArray<TileTypes> GetPossibleTypes();
 
 private:
 	UPROPERTY(VisibleAnywhere)

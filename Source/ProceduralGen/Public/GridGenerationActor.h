@@ -24,17 +24,14 @@ public:
 		int8 width;
 	UPROPERTY(VisibleAnywhere, Category = "Transform")
 		USceneComponent* Transform;
-
 	UPROPERTY(EditAnywhere, Category = "Generation")
 		UMyModuleRules* Rules;
+	UPROPERTY(VisibleAnywhere, Category = "Generation")
+		int collapsedCount;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Generation", DisplayName = "Grid")
@@ -54,10 +51,13 @@ private:
 
 	void CentreGrid(FVector& vectorToAlign);
 
-	void Propagate(TileTypes& type, int &originIndex);
+	void Propagate(TileTypes& type, int& originIndex);
 
-	void UpdateSlot(const int& index, TileTypes& type, Directions direction);
+	TArray<int> PropagateAround(TArray<TileTypes>& type, int& originIndex);
+
+	bool UpdateSlot(const int& index, TArray<TileTypes> typeArr, Directions direction);
 
 	int ClampIndex(const int& index);
 
+	bool HasCollapsed();
 };
