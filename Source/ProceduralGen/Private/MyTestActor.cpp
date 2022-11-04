@@ -33,6 +33,10 @@ void AMyTestActor::BeginPlay()
 	
 }
 
+/// <summary>
+/// Changes the colour of the mesh of this actor
+/// </summary>
+/// <param name="newColour">Colour to set</param>
 void AMyTestActor::ChangeColour(const FLinearColor& newColour) 
 {
 	UMaterialInstanceDynamic* material = Mesh->CreateAndSetMaterialInstanceDynamic(0);
@@ -41,6 +45,11 @@ void AMyTestActor::ChangeColour(const FLinearColor& newColour)
 	}
 }
 
+/// <summary>
+/// Returns a colour based on the type given
+/// </summary>
+/// <param name="type">Type to check</param>
+/// <returns>Returns colour associated to the given type</returns>
 FLinearColor AMyTestActor::GetColour(const TileTypes& type) 
 {
 	switch (type) 
@@ -60,17 +69,32 @@ FLinearColor AMyTestActor::GetColour(const TileTypes& type)
 	return FLinearColor::Black;
 }
 
+/// <summary>
+/// Sets the type of this actor
+/// </summary>
+/// <param name="type">Type to set</param>
 void AMyTestActor::SetType(const TileTypes& type) 
 {
 	ChangeColour(GetColour(type));
+	possibleTypes.Empty();
+	possibleTypes.Add(type);
 	bCollapsed = true;
 }
 
+/// <summary>
+/// Returns the collapsed state of this actor
+/// </summary>
+/// <returns>Returns if this actor has collapsed</returns>
 bool AMyTestActor::GetCollapsed() 
 {
 	return bCollapsed;
 }
 
+/// <summary>
+/// Updates the possible types of this actor using the given array
+/// </summary>
+/// <param name="typeToBe">Array to compare it with</param>
+/// <returns>Returns true if the possibilities were changed</returns>
 bool AMyTestActor::SetTypes(TArray<TileTypes> typeToBe) 
 {
 	TArray<TileTypes> newTypesAvailable;
@@ -99,11 +123,19 @@ bool AMyTestActor::SetTypes(TArray<TileTypes> typeToBe)
 	return true;
 }
 
+/// <summary>
+/// Gets the number of types possible
+/// </summary>
+/// <returns>How many possible types can this actor be</returns>
 int8 AMyTestActor::GetTypeCount() 
 {
 	return possibleTypes.Num();
 }
 
+/// <summary>
+/// Get a random type out of the possible types
+/// </summary>
+/// <returns>One of the possible types</returns>
 TileTypes AMyTestActor::GetType() 
 {
 	if (possibleTypes.Num() > 1) {
@@ -115,6 +147,10 @@ TileTypes AMyTestActor::GetType()
 	}
 }
 
+/// <summary>
+/// Gets the array of possible types
+/// </summary>
+/// <returns>Possible types array</returns>
 TArray<TileTypes> AMyTestActor::GetPossibleTypes() 
 {
 	return possibleTypes;

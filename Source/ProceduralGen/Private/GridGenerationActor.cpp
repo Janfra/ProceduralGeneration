@@ -78,6 +78,9 @@ void AGridGenerationActor::CentreGrid(FVector& vectorToAlign)
 
  #pragma region Wave Function Collapse
 
+/// <summary>
+/// WFC generation function, generates randomly based on the given rules. 
+/// </summary>
 void AGridGenerationActor::WaveFunctionCollapseGen() 
 {
 	GenerateGrid();
@@ -118,6 +121,11 @@ void AGridGenerationActor::WaveFunctionCollapseGen()
 	}
 }
 
+/// <summary>
+/// Updates all tiles affected by the new constraints
+/// </summary>
+/// <param name="type">Origin tile type to start propagation</param>
+/// <param name="originIndex">Origin tile index</param>
 void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex) 
 {
 	// Index
@@ -137,6 +145,7 @@ void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex)
 		TArray<TileTypes> currentTypeArr;
 		typesToPropagate.Dequeue(currentTypeArr);
 
+		// If a tile is updated, add it to the queue to check if neighbours also need to be updated
 		for (auto& index : PropagateAround(currentTypeArr, currentIndex)) 
 		{
 			typesToPropagate.Enqueue(gridSlots[index]->GetPossibleTypes());
@@ -151,6 +160,12 @@ void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex)
 	}
 }
 
+/// <summary>
+/// Updates tiles adjacent to the given tile.
+/// </summary>
+/// <param name="typeArr">List of tiles available in origin tile</param>
+/// <param name="originIndex">Origin tile index</param>
+/// <returns>Index of the tiles that were updated</returns>
 TArray<int> AGridGenerationActor::PropagateAround(TArray<TileTypes>& typeArr, int& originIndex) 
 {
 	TArray<int> indexesToCheck;
@@ -225,6 +240,11 @@ bool AGridGenerationActor::UpdateSlot(const int& index, TArray<TileTypes> typeAr
 	return gridSlots[index]->SetTypes(Rules->GetGroupConstraints(typeArr, direction));
 }
 
+/// <summary>
+/// Clamp the given index to the grid size 
+/// </summary>
+/// <param name="index">Index being clamped</param>
+/// <returns>Clamped value</returns>
 int AGridGenerationActor::ClampIndex(const int& index) 
 {
 	if (index <= 0) {
@@ -237,6 +257,10 @@ int AGridGenerationActor::ClampIndex(const int& index)
 	return index;
 }
 
+/// <summary>
+/// Returns if the WFC has fully collapsed/observed
+/// </summary>
+/// <returns>Returns true if WFC has fully collapsed</returns>
 bool AGridGenerationActor::HasCollapsed() 
 {
 	if (collapsedCount == gridSlots.Num()) 
@@ -245,7 +269,6 @@ bool AGridGenerationActor::HasCollapsed()
 	}
 	return false;
 }
-
 
 #pragma endregion
 
