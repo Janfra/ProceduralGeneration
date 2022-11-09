@@ -83,9 +83,10 @@ void AGridGenerationActor::CentreGrid(FVector& vectorToAlign)
 /// </summary>
 void AGridGenerationActor::WaveFunctionCollapseGen() 
 {
+	collapsedCount = 0;
 	GenerateGrid();
 
-	// First iteration: Go through all slots in the grid, find the ones with lowest entropy and store them.
+	// Per iteration: Go through all slots in the grid, find the ones with lowest entropy and store them.
 	TArray<AMyTestActor*> collapseOptions;
 	int lowestEntropy = (int)TileTypes::TYPES_COUNT;
 	AMyTestActor* selectedOption;
@@ -114,7 +115,7 @@ void AGridGenerationActor::WaveFunctionCollapseGen()
 		selectedOption = collapseOptions[randomPick];
 		TileTypes tileType = selectedOption->GetType();
 		selectedOption->SetType(tileType);
-		collapsedCount++;
+		//collapsedCount++; - 9 away from total every time
 	
 		// Propagate new constraints 
 		Propagate(tileType, randomPick);
@@ -150,13 +151,8 @@ void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex)
 		{
 			typesToPropagate.Enqueue(gridSlots[index]->GetPossibleTypes());
 			indexToPropagateTo.Enqueue(index);
-			
-			/*for (auto& type : gridSlots[index]->GetPossibleTypes()) 
-			{
-				indexToPropagateTo.Enqueue(index);
-				typesToPropagate.Enqueue(type);
-			}*/
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Propagated to %d"), currentIndex);
 	}
 }
 
@@ -176,55 +172,38 @@ TArray<int> AGridGenerationActor::PropagateAround(TArray<TileTypes>& typeArr, in
 	const int originBackIndex = originIndex - 1;
 	const int originLeftIndex = originIndex - height;
 
-	// Clamped value, also to check that origin is not included in the queue.
+	// Index value to be clamped, also to check that origin is not included in the queue.
 	int clampedIndex;
 
-	// Update slot based on direction
 	for (int i = 0; i < TOTAL_DIRECTIONS; i++)
 	{
+		// Set the index to be clamped depending on direction
 		switch (i)
 		{
-			// For all cases: After update, add index to array that will be returned.
 		case 0:
-			clampedIndex = ClampIndex(originFrontIndex);
-			if (UpdateSlot(clampedIndex, typeArr, (Directions)i))
-			{
-				if (clampedIndex != originIndex)
-					indexesToCheck.AddUnique(clampedIndex);
-			}
-			
+			clampedIndex = originFrontIndex;
 			break;
 		case 1:
-			clampedIndex = ClampIndex(originRightIndex);
-			if (UpdateSlot(clampedIndex, typeArr, (Directions)i))
-			{
-				if (clampedIndex != originIndex)
-					indexesToCheck.AddUnique(clampedIndex);
-			}
+			clampedIndex = originRightIndex;
 			break;
 		case 2:
-			clampedIndex = ClampIndex(originBackIndex);
-			if (UpdateSlot(clampedIndex, typeArr, (Directions)i)) 
-			{
-				if (clampedIndex != originIndex)
-					indexesToCheck.AddUnique(clampedIndex);
-			}
-			
+			clampedIndex = originBackIndex;
 			break;
 		case 3:
-			clampedIndex = ClampIndex(originLeftIndex);
-			if (UpdateSlot(clampedIndex, typeArr, (Directions)i))
-			{
-				if (clampedIndex != originIndex)
-					indexesToCheck.AddUnique(clampedIndex);
-			}
-
+			clampedIndex = originLeftIndex;
 			break;
-
 		default:
 			break;
 		}
+
+		// Try to update slot with current index, if true add it to the list to check its neighbours
+		if (UpdateSlot(clampedIndex, typeArr, (Directions)i))
+		{
+			if (clampedIndex != originIndex)
+				indexesToCheck.AddUnique(clampedIndex);
+		}
 	}
+
 	return indexesToCheck;
 }
 
@@ -235,8 +214,9 @@ TArray<int> AGridGenerationActor::PropagateAround(TArray<TileTypes>& typeArr, in
 /// <param name="type">Type collapsed</param>
 /// <param name="direction">Direction of the update</param>
 /// <returns>Was the slot updated</returns>
-bool AGridGenerationActor::UpdateSlot(const int& index, TArray<TileTypes> typeArr, Directions direction)
+bool AGridGenerationActor::UpdateSlot(int& index, TArray<TileTypes> typeArr, Directions direction)
 {
+	ClampIndex(index);
 	return gridSlots[index]->SetTypes(Rules->GetGroupConstraints(typeArr, direction));
 }
 
@@ -244,17 +224,16 @@ bool AGridGenerationActor::UpdateSlot(const int& index, TArray<TileTypes> typeAr
 /// Clamp the given index to the grid size 
 /// </summary>
 /// <param name="index">Index being clamped</param>
-/// <returns>Clamped value</returns>
-int AGridGenerationActor::ClampIndex(const int& index) 
+void AGridGenerationActor::ClampIndex(int& index) 
 {
 	if (index <= 0) {
-		return 0;
+		index = 0;
+		return;
 	}
 	else if (index >= gridSlots.Num()) 
 	{
-		return gridSlots.Num() - 1;
+		index =	gridSlots.Num() - 1;
 	}
-	return index;
 }
 
 /// <summary>
@@ -263,6 +242,14 @@ int AGridGenerationActor::ClampIndex(const int& index)
 /// <returns>Returns true if WFC has fully collapsed</returns>
 bool AGridGenerationActor::HasCollapsed() 
 {
+	for (auto& slots : gridSlots) 
+	{
+		if (slots->GetCollapsed()) 
+		{
+			collapsedCount++;
+		}
+	}
+
 	if (collapsedCount == gridSlots.Num()) 
 	{
 		return true;
@@ -272,3 +259,12 @@ bool AGridGenerationActor::HasCollapsed()
 
 #pragma endregion
 
+#pragma region Outdated
+
+/*for (auto& type : gridSlots[index]->GetPossibleTypes())
+{
+	indexToPropagateTo.Enqueue(index);
+	typesToPropagate.Enqueue(type);
+}*/
+
+#pragma endregion

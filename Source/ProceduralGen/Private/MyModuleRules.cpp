@@ -53,6 +53,5 @@ TArray<TileTypes> UMyModuleRules::GetGroupConstraints(TArray<TileTypes> typeArr,
 	{
 		groupConstraints.Append(typeNeighboursDictionary[type].DirectionConstraints[index].TilesPossible);
 	}
-
 	return groupConstraints;
 }

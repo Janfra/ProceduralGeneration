@@ -55,9 +55,9 @@ private:
 
 	TArray<int> PropagateAround(TArray<TileTypes>& type, int& originIndex);
 
-	bool UpdateSlot(const int& index, TArray<TileTypes> typeArr, Directions direction);
+	bool UpdateSlot(int& index, TArray<TileTypes> typeArr, Directions direction);
 
-	int ClampIndex(const int& index);
+	void ClampIndex(int& index);
 
 	bool HasCollapsed();
 };
