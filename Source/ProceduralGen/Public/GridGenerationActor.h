@@ -26,8 +26,6 @@ public:
 		USceneComponent* Transform;
 	UPROPERTY(EditAnywhere, Category = "Generation")
 		UMyModuleRules* Rules;
-	UPROPERTY(VisibleAnywhere, Category = "Generation")
-		int collapsedCount;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,9 +37,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Generation", DisplayName = "Test to Generate")
 		TSubclassOf<AMyTestActor> testClass = AMyTestActor::StaticClass();
-	
-	UPROPERTY(VisibleAnywhere, Category = "Generation", DisplayName = "Ignored Slots")
-		TArray<AMyTestActor*> slotsUpdated;
 
 	void GenerateGrid();
 
@@ -59,5 +54,5 @@ private:
 
 	void ClampIndex(int& index);
 
-	bool HasCollapsed();
+	bool IsInObservedState(int& collapsedCount);
 };

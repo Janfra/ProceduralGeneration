@@ -16,8 +16,6 @@ AGridGenerationActor::AGridGenerationActor()
 
 	height = 1;
 	width = 1;
-
-	collapsedCount = 0;
 }
 
 // Called when the game starts or when spawned
@@ -83,15 +81,18 @@ void AGridGenerationActor::CentreGrid(FVector& vectorToAlign)
 /// </summary>
 void AGridGenerationActor::WaveFunctionCollapseGen() 
 {
-	collapsedCount = 0;
 	GenerateGrid();
 
 	// Per iteration: Go through all slots in the grid, find the ones with lowest entropy and store them.
 	TArray<AMyTestActor*> collapseOptions;
+	int collapsedCount = 0;
 	int lowestEntropy = (int)TileTypes::TYPES_COUNT;
 	AMyTestActor* selectedOption;
 	
-	while (!HasCollapsed()) {
+	while (!IsInObservedState(collapsedCount)) {
+
+		// Collapse options empty and update them
+		collapseOptions.Empty();
 		for (auto& slot : gridSlots) 
 		{
 			if (!slot->GetCollapsed()) 
@@ -115,7 +116,7 @@ void AGridGenerationActor::WaveFunctionCollapseGen()
 		selectedOption = collapseOptions[randomPick];
 		TileTypes tileType = selectedOption->GetType();
 		selectedOption->SetType(tileType);
-		//collapsedCount++; - 9 away from total every time
+		collapsedCount++;
 	
 		// Propagate new constraints 
 		Propagate(tileType, randomPick);
@@ -240,16 +241,8 @@ void AGridGenerationActor::ClampIndex(int& index)
 /// Returns if the WFC has fully collapsed/observed
 /// </summary>
 /// <returns>Returns true if WFC has fully collapsed</returns>
-bool AGridGenerationActor::HasCollapsed() 
+bool AGridGenerationActor::IsInObservedState(int& collapsedCount) 
 {
-	for (auto& slots : gridSlots) 
-	{
-		if (slots->GetCollapsed()) 
-		{
-			collapsedCount++;
-		}
-	}
-
 	if (collapsedCount == gridSlots.Num()) 
 	{
 		return true;

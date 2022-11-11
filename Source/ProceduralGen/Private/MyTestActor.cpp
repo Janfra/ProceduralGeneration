@@ -141,10 +141,11 @@ TileTypes AMyTestActor::GetType()
 	if (possibleTypes.Num() > 1) {
 		return possibleTypes[FMath::RandRange(0, possibleTypes.Num() - 1)];
 	} 
-	else 
+	else if (!possibleTypes.IsEmpty())
 	{
 		return possibleTypes[0];
 	}
+	return TileTypes::White;
 }
 
 /// <summary>
