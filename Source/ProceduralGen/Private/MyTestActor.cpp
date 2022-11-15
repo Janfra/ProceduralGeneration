@@ -154,5 +154,11 @@ TileTypes AMyTestActor::GetType()
 /// <returns>Possible types array</returns>
 TArray<TileTypes> AMyTestActor::GetPossibleTypes() 
 {
+	if(!possibleTypes.IsEmpty())
+	{
+		return possibleTypes;
+	}
+	
+	possibleTypes.AddUnique(TileTypes::White);
 	return possibleTypes;
 }

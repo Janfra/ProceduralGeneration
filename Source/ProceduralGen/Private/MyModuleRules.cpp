@@ -49,9 +49,22 @@ TArray<TileTypes> UMyModuleRules::GetGroupConstraints(TArray<TileTypes> typeArr,
 
 	// 'DirectionsConstraints' are set on the constructor to have same index order than the direction enum
 	const int index = (int)direction;
-	for (auto& type : typeArr) 
-	{
-		groupConstraints.Append(typeNeighboursDictionary[type].DirectionConstraints[index].TilesPossible);
+
+	if (index < 0 || index >= (int)TileTypes::TYPES_COUNT) {
+		UE_LOG(LogTemp, Warning, TEXT("Index (Direction) requested to the module rules is invalid %d"), index);
+		return groupConstraints;
 	}
+	
+	for (TileTypes& type : typeArr) 
+	{
+		if (typeNeighboursDictionary.Contains(type)) {
+			groupConstraints.Append(typeNeighboursDictionary[type].DirectionConstraints[index].TilesPossible);
+		}
+		else 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Index (Type) requested to the module rules is invalid %d"), (int)type);
+		}
+	}
+
 	return groupConstraints;
 }

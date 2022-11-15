@@ -45,7 +45,6 @@ void AGridGenerationActor::GenerateGrid()
 
 			AMyTestActor* test = GetWorld()->SpawnActor<AMyTestActor>(testClass, currentLocation, GetActorRotation());
 			test->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-			test->SetRootComponent(Transform);
 			test->ChangeColour(FLinearColor::Red);
 			gridSlots.AddUnique(test);
 		}
@@ -153,7 +152,7 @@ void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex)
 			typesToPropagate.Enqueue(gridSlots[index]->GetPossibleTypes());
 			indexToPropagateTo.Enqueue(index);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Propagated to %d"), currentIndex);
+		// UE_LOG(LogTemp, Warning, TEXT("Propagated to %d"), currentIndex);
 	}
 }
 
