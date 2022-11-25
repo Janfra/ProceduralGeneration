@@ -75,9 +75,9 @@ FLinearColor AMyTestActor::GetColour(const TileTypes& type)
 /// <param name="type">Type to set</param>
 void AMyTestActor::SetType(const TileTypes& type) 
 {
-	ChangeColour(GetColour(type));
 	possibleTypes.Empty();
-	possibleTypes.Add(type);
+	ChangeColour(GetColour(type));
+	possibleTypes.AddUnique(type);
 	bCollapsed = true;
 }
 
@@ -99,6 +99,7 @@ bool AMyTestActor::SetTypes(TArray<TileTypes> typeToBe)
 {
 	TArray<TileTypes> newTypesAvailable;
 
+	// If already possible, keep it as possible, otherwise remove it.
 	for (auto& currentTileConstraint : typeToBe) 
 	{
 		if (possibleTypes.Contains(currentTileConstraint)) 
@@ -106,20 +107,25 @@ bool AMyTestActor::SetTypes(TArray<TileTypes> typeToBe)
 			newTypesAvailable.AddUnique(currentTileConstraint);
 		}
 	}
+
+	// No changes made
 	if (newTypesAvailable.Num() == possibleTypes.Num()) 
 	{
 		return false;
 	}
 	
+	// Check in case the possible types is now going to be empty
+	if (newTypesAvailable.IsEmpty())
+	{
+		UObject* test = this;
+		FString objectName = test->GetName();
+
+		UE_LOG(LogTemp, Warning, TEXT("The types set in %s was empty! - SetTypes"), *objectName);
+	}
+
 	possibleTypes.Empty();
-	if (newTypesAvailable.IsEmpty()) 
-	{
-		possibleTypes.Add(TileTypes::White);
-	}
-	else 
-	{
-		possibleTypes.Append(newTypesAvailable);
-	}
+	possibleTypes.Append(newTypesAvailable);
+
 	return true;
 }
 
@@ -138,14 +144,23 @@ int8 AMyTestActor::GetTypeCount()
 /// <returns>One of the possible types</returns>
 TileTypes AMyTestActor::GetType() 
 {
+	// Possible types empty warning
+	if (possibleTypes.IsEmpty()) 
+	{
+		UObject* test = this;
+		FString objectName = test->GetName();
+
+		UE_LOG(LogTemp, Warning, TEXT("Actor possible types is empty! - GetType in %s"), *objectName);
+		return TileTypes::White;
+	}
+
 	if (possibleTypes.Num() > 1) {
 		return possibleTypes[FMath::RandRange(0, possibleTypes.Num() - 1)];
 	} 
-	else if (!possibleTypes.IsEmpty())
+	else
 	{
 		return possibleTypes[0];
 	}
-	return TileTypes::White;
 }
 
 /// <summary>
@@ -159,6 +174,11 @@ TArray<TileTypes> AMyTestActor::GetPossibleTypes()
 		return possibleTypes;
 	}
 	
+	// Possible types empty warning
+	UObject* test = this;
+	FString objectName = test->GetName();
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor possible types is empty! - GetPossibleTypes in %s and their collapsed state is %s"), *objectName, (bCollapsed ? TEXT("true") : TEXT("false")));
 	possibleTypes.AddUnique(TileTypes::White);
 	return possibleTypes;
 }

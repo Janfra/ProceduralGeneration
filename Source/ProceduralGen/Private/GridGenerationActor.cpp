@@ -33,9 +33,11 @@ void AGridGenerationActor::BeginPlay()
 /// </summary>
 void AGridGenerationActor::GenerateGrid() 
 {
+	// Get the bottom left corner to start generating
 	FVector gridStartPos;
 	GetGridStartPos(gridStartPos);
 
+	// Generate slots and attach them to the grid
 	for (int y = 0; y / TILE_SIZE < height; y += TILE_SIZE) 
 	{
 		for (int x = 0; x / TILE_SIZE < width; x += TILE_SIZE) 
@@ -45,7 +47,7 @@ void AGridGenerationActor::GenerateGrid()
 
 			AMyTestActor* test = GetWorld()->SpawnActor<AMyTestActor>(testClass, currentLocation, GetActorRotation());
 			test->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-			test->ChangeColour(FLinearColor::Red);
+			test->ChangeColour(FLinearColor::Black);
 			gridSlots.AddUnique(test);
 		}
 	}
@@ -82,16 +84,20 @@ void AGridGenerationActor::WaveFunctionCollapseGen()
 {
 	GenerateGrid();
 
-	// Per iteration: Go through all slots in the grid, find the ones with lowest entropy and store them.
+	// Initializing
 	TArray<AMyTestActor*> collapseOptions;
 	int collapsedCount = 0;
-	int lowestEntropy = (int)TileTypes::TYPES_COUNT;
+	int lowestEntropy;
+	const int totalTypes = (int)TileTypes::TYPES_COUNT;
 	AMyTestActor* selectedOption;
 	
 	while (!IsInObservedState(collapsedCount)) {
 
-		// Collapse options empty and update them
+		// Reset the options and entropy requirement
 		collapseOptions.Empty();
+		lowestEntropy = totalTypes;
+
+		// Get slots with lowest entropy in a list
 		for (auto& slot : gridSlots) 
 		{
 			if (!slot->GetCollapsed()) 
@@ -110,15 +116,18 @@ void AGridGenerationActor::WaveFunctionCollapseGen()
 			}
 		}
 
-		// With the new list, pick one randomly and collapse it with a random type.
-		int randomPick = FMath::RandRange(0, collapseOptions.Num() - 1);
-		selectedOption = collapseOptions[randomPick];
-		TileTypes tileType = selectedOption->GetType();
-		selectedOption->SetType(tileType);
 		collapsedCount++;
-	
-		// Propagate new constraints 
-		Propagate(tileType, randomPick);
+		if (!collapseOptions.IsEmpty())
+		{
+			// With the generated list, pick one randomly and collapse it with a random type.
+			int randomPick = FMath::RandRange(0, collapseOptions.Num() - 1);
+			selectedOption = collapseOptions[randomPick];
+			TileTypes tileType = selectedOption->GetType();
+			selectedOption->SetType(tileType);
+
+			// Propagate new constraints 
+			Propagate(tileType, randomPick);
+		}
 	}
 }
 
@@ -139,6 +148,7 @@ void AGridGenerationActor::Propagate(TileTypes& type, int& originIndex)
 	initializeArr.Add(type);
 	typesToPropagate.Enqueue(initializeArr);
 
+	// Keep propagating until no slot is getting updated
 	while (!indexToPropagateTo.IsEmpty()) 
 	{
 		int currentIndex;
@@ -216,8 +226,19 @@ TArray<int> AGridGenerationActor::PropagateAround(TArray<TileTypes>& typeArr, in
 /// <returns>Was the slot updated</returns>
 bool AGridGenerationActor::UpdateSlot(int& index, TArray<TileTypes> typeArr, Directions direction)
 {
+	// Get the slot to update their constraints
 	ClampIndex(index);
-	return gridSlots[index]->SetTypes(Rules->GetGroupConstraints(typeArr, direction));
+	AMyTestActor* slotToUpdate = gridSlots[index];
+
+	// If the slot was already collapsed, it cannot be updated.
+	if (!slotToUpdate->GetCollapsed()) 
+	{
+		return slotToUpdate->SetTypes(Rules->GetGroupConstraints(typeArr, direction));
+	}
+	else 
+	{
+		return false;
+	}
 }
 
 /// <summary>
